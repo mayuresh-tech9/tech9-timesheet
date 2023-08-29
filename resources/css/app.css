@@ -1,0 +1,118 @@
+/* Apply some basic styles to the menu items */
+
+.menu {
+    display: flex;
+    justify-content: left;
+    background-color: #2a3146;
+    color: white;
+    padding: 10px 0;
+}
+
+.menu a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+}
+
+.menu a:hover {
+    background-color: #555;
+}
+
+/* Make the menu sticky to the top of the page */
+
+.menu-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    /* Ensure the menu is on top of other elements */
+}
+.settings {
+    margin: 5rem auto;
+    width: 70%;
+
+}
+.settings h1 {
+    width: 100%;
+    background-color: #3ebeed;
+    color: #fff;
+    text-align: center;
+}
+.settings-save {
+    padding: 8px 16px !important;
+    background-color: #ff7a00 !important;
+    margin-left: 41%;
+    color: #fff;
+    border-radius: 10px;
+    margin-top: 1rem;
+}
+.settings input{
+    width: 100%;
+}
+/* Apply a blue background to the table header */
+table {
+    width: 70%;
+    margin: 5rem auto;
+    border-collapse: collapse;
+
+}
+
+/* Apply a white background to the table rows */
+tr {
+    background-color: #fff;
+}
+
+/* Add some padding and center the text in table cells */
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+.headerRow {
+    background-color: #3ebeed;
+    color: #fff;
+}
+
+/* Style the table header text */
+th {
+    font-weight: bold;
+    color: black;
+}
+th tr {
+    background-color: lightblue;
+}
+
+/* Apply a blue background to alternate table rows */
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+a {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #2196F3;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+/* Style links as buttons */
+a.button {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #2196F3;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+a.button:hover {
+    background-color: red;
+}
+.harvest_time {
+    display: flex;
+    justify-content: space-evenly;
+}
+textarea {
+    border: 1px solid black;
+}
+input {
+    border: 1px solid black;
+}
