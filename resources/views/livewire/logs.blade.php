@@ -1,12 +1,18 @@
 <div>
-    <a href="{{route('logs')}}">Reload</a>
+    <div class="grid-cols-1 w-6/12 ml-20">
+        <div class="grid grid-cols-2 gap-2">
+        <a href="{{route('logs')}}" >
+            &#8635; Refresh
+        </a>
 
-    <button wire:click="toggleDetails">
-        @if($showDetails)
-            Hide Details
-        @else
-            Show Details
-        @endif</button>
+        <button wire:click="toggleDetails">
+            @if($showDetails)
+                <h>Hide Details</h>
+            @else
+                Show Details
+            @endif</button>
+        </div>
+    </div>
     @if($showDetails)
         @if(count($data['missingEntries']) > 0)
             <table>
@@ -138,8 +144,9 @@
 {{--            </table>--}}
 {{--        @endif--}}
     @else
-        <div class="row">
-            <div class="columns-1">
+        <div class="grid-cols-1 w-6/12 ml-20">
+        <div class="grid grid-cols-2 gap-2">
+            <div class="grid-cols-1">
                 <div class="p-4 text-center bg-blue-100">
                     Total Hours
                 </div>
@@ -147,7 +154,7 @@
                     {{ $data['totalHours'] }}
                 </div>
             </div>
-            <div class="columns-2">
+            <div class="grid-cols-1">
                 <div class="p-4 text-center bg-blue-100">
                     Billable Hours
                 </div>
@@ -156,8 +163,8 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="columns-1">
+        <div class="grid grid-cols-2 gap-2">
+            <div class="grid-cols-1">
                 <div class="p-4 text-center bg-blue-100">
                     Non-billable Hours
                 </div>
@@ -165,14 +172,15 @@
                     {{ $data['nonBillableHours'] }}
                 </div>
             </div>
-            <div class="columns-2">
+            <div class="grid-cols-1">
                 <div class="p-4 text-center bg-blue-100">
-                    Time-entry Missing Days
+                    Missing Days
                 </div>
                 <div class="p-4 text-center">
                     {{ count($data['missingEntries']) }}
                 </div>
             </div>
+        </div>
         </div>
     @endif
 

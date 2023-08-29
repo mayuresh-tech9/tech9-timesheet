@@ -91,11 +91,6 @@ class LogTimeComponent extends Component
 //        Log::info($handle);
 
         $response = curl_exec($handle);
-        Log::info($response);
-        Notification::title('Time logged successfully')
-            ->message('Time log added successfully.')
-            ->show();
-
         if ($response !== false) {
             Notification::title('Time logged successfully')
                 ->message('Time log added successfully.')

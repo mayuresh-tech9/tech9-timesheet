@@ -1,4 +1,7 @@
 /* Apply some basic styles to the menu items */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .menu {
   display: flex;

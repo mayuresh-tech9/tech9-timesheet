@@ -3,9 +3,9 @@
 namespace App\Http\Livewire;
 
 use App\Http\Helpers\HarvestHelper;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Native\Laravel\Facades\Notification;
 
 class Logs extends Component
 {
@@ -15,7 +15,6 @@ class Logs extends Component
     public function mount()
     {
         $this->data = HarvestHelper::getLogs();
-
     }
     public function toggleDetails()
     {
