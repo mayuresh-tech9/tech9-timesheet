@@ -14,20 +14,20 @@ class NativeAppServiceProvider
      */
     public function boot(): void
     {
-//        MenuBar::create()
-//            ->label('Timesheet')
-//            ->icon(storage_path('app/logo.png'))
-//            ->route('logs')
-//            ->width(700)
-//            ->height(400);
-
-        Window::open()
-//            ->alwaysOnTop()
-            ->position(100,100)
-            ->rememberState()
-//            ->showDevTools(false)
-            ->width(400)
+        MenuBar::create()
+            ->label('Timesheet')
+            ->icon(storage_path('app/logo.png'))
+            ->route('logs')
+            ->width(700)
             ->height(400);
+
+//        Window::open()
+////            ->alwaysOnTop()
+//            ->position(100,100)
+//            ->rememberState()
+////            ->showDevTools(false)
+//            ->width(400)
+//            ->height(400);
 
     }
 

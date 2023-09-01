@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Log;
 
 class HarvestHelper
 {
-    static function getLogs()
+    static function getLogs($specificDate=null)
     {
-        $currentDate = Carbon::now()->format('Ymd');
-        $startOfMonth = Carbon::now()->startOfMonth()->format('Ymd');
+        $currentDate = $specificDate ?? Carbon::now()->format('Ymd');
+        $startOfMonth = $specificDate ?? Carbon::now()->startOfMonth()->format('Ymd');
         list($url, $headers, $handle) = self::init();
         curl_setopt($handle, CURLOPT_URL, $url . "reports/time/projects?from=$startOfMonth&to=$currentDate");
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
@@ -34,6 +34,9 @@ class HarvestHelper
             $response = curl_exec($handle);
             $timeEntries = array_merge($timeEntries, json_decode($response, true)['time_entries']);
         }
+        if ($specificDate) {
+            return $timeEntries;
+        }
         $currentMonth = Carbon::now();
         $numberOfDaysInMonth = $currentMonth->daysInMonth;
 
@@ -52,7 +55,6 @@ class HarvestHelper
         $totalHours = 0.0;
         $billableHours = 0.0;
         $nonBillableHours = 0.0;
-        Log::info(count($timeEntries));
         foreach ($timeEntries as $timeEntry) {
             if ($timeEntry['billable'] === true) {
                 if (!isset($billableEntries[$timeEntry['spent_date']])) {
@@ -67,7 +69,6 @@ class HarvestHelper
                 } else {
                     $nonBillableEntries[$timeEntry['spent_date']] = $nonBillableEntries[$timeEntry['spent_date']] + $timeEntry['hours'];
                 }
-                Log::info($timeEntry['spent_date']);
                 $nonBillableHours += floatval($timeEntry['hours']);
             }
             if (!isset($timeEntriesByWeekday[$timeEntry['spent_date']])) {
@@ -112,9 +113,21 @@ class HarvestHelper
         curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
 
         $response = curl_exec($handle);
-        Log::info(json_decode($response, true));
 
         return collect(json_decode($response, true)['project_assignments'])->toArray();
+    }
+
+    static function getTimeEntryDetails($id)
+    {
+        list($url, $headers, $handle) = self::init();
+        curl_setopt($handle, CURLOPT_URL, $url . "time_entries/" . $id);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
+
+        $response = curl_exec($handle);
+
+        return collect(json_decode($response, true))->toArray();
     }
 
     /**

@@ -25,7 +25,9 @@ class LogTimeComponent extends Component
 
     public $setAsDefault = true;
     public $selectedTaskId;
-
+    public $existingEntries;
+    public $idToEdit = null;
+    public $updated = false;
     protected $rules = [
         'time' => 'required',
         'hours' => ['required', 'regex:/^(?:[0-9]|0[0-9]|1[0-9]|2[0-3])(?::[0-5][0-9])?$/'],
@@ -41,6 +43,7 @@ class LogTimeComponent extends Component
         $this->selectedProjectId = $data['default_project_id'] ?? '';
         $this->selectedTaskId = $data['default_task_id'] ?? '';
         $this->getLocalProjects();
+        $this->existingEntries = HarvestHelper::getLogs($time);
     }
 
     public function toggleCheckbox()
@@ -65,41 +68,71 @@ class LogTimeComponent extends Component
         ksort($sortedFolders);
         $this->projects = $sortedFolders;
     }
-    public function submit()
+    public function setUpdated()
+    {
+        Log::info("setting updated true");
+        $this->updated = true;
+    }
+    public function submitForm()
     {
         $this->validate();
-        list($url, $headers, $handle) = HarvestHelper::init();
-        if ($this->setAsDefault) {
-            SettingsHelper::updateSetting('default_project_id', $this->selectedProjectId);
-            SettingsHelper::updateSetting('default_task_id', $this->selectedTaskId);
+        Log::info($this->idToEdit);
+        Log::info($this->updated === true);
+        if ($this->idToEdit) {
+            if (!$this->updated) {
+                return;
+            }
+            $postData = array(
+                'hours' => $this->hours,
+                'notes' => $this->description
+            );
+            $postFields = http_build_query($postData);
+            list($url, $headers, $handle) = HarvestHelper::init();
+            curl_setopt($handle, CURLOPT_URL, $url . "time_entries/" . $this->idToEdit);
+            curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $postFields);
+            curl_setopt($handle, CURLOPT_HTTPHEADER, array(
+                'Content-Length: ' . strlen($postFields)
+            ));
+            curl_setopt($handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+            curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
+
+        } else {
+            list($url, $headers, $handle) = HarvestHelper::init();
+            if ($this->setAsDefault) {
+                SettingsHelper::updateSetting('default_project_id', $this->selectedProjectId);
+                SettingsHelper::updateSetting('default_task_id', $this->selectedTaskId);
+            }
+            $postData = array(
+                'hours' => $this->hours,
+                'notes' => $this->description
+            );
+            $postFields = http_build_query($postData);
+            curl_setopt($handle, CURLOPT_URL, $url . "time_entries?project_id=$this->selectedProjectId&task_id=$this->selectedTaskId&spent_date=$this->time");
+            curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($handle, CURLOPT_POSTFIELDS, $postFields);
+            curl_setopt($handle, CURLOPT_HTTPHEADER, array(
+                'Content-Length: ' . strlen($postFields)
+            ));
+            curl_setopt($handle, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
+
         }
-        $postData = array(
-            'hours' => $this->hours,
-            'notes' => $this->description
-        );
-        $postFields = http_build_query($postData);
-        curl_setopt($handle, CURLOPT_URL, $url . "time_entries?project_id=$this->selectedProjectId&task_id=$this->selectedTaskId&spent_date=$this->time");
-        curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($handle, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, array(
-            'Content-Length: ' . strlen($postFields)
-        ));
-        curl_setopt($handle, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
-
-//        Log::info($handle);
-
         $response = curl_exec($handle);
         if ($response !== false) {
+            $this->cancelEdit();
             Notification::title('Time logged successfully')
-                ->message('Time log added successfully.')
+                ->message(!$this->idToEdit ? 'Time log added successfully.' : 'Time log updated successfully.')
                 ->show();
         } else {
             Notification::title('Error  logging time')
                 ->message('Something went wrong.')
                 ->show();
         }
+        $this->idToEdit = null;
+        $this->updated = false;
 
         return redirect()->route('logs');
 
@@ -120,16 +153,31 @@ class LogTimeComponent extends Component
         chdir($path);
         $formatted_date = Carbon::parse($this->time)->startOfDay()->format('Y-m-d H:i:s');
         $next_day = Carbon::parse($this->time)->endOfDay()->format('Y-m-d H:i:s');
-        Log::info("git log --all --no-merges --pretty=oneline --abbrev-commit --date=short --author=$githubHanlde --since='$formatted_date' --before='$next_day'");
         exec("git log --all --no-merges --pretty=oneline --abbrev-commit --date=short --author=$githubHanlde --since='$formatted_date' --before='$next_day'", $this->output);
-        Log::info($this->output);
     }
 
     public function appendString()
     {
-        Log::info("in appendString");
         $this->description .= trim($this->description) === '' ? $this->selectedDesc : PHP_EOL . $this->selectedDesc;
     }
+    public function editLog($id)
+    {
+        $this->idToEdit = $id;
+        $logDetails = HarvestHelper::getTimeEntryDetails($id);
+        $this->selectedProjectId = $logDetails['project']['id'];
+        $this->selectedTaskId = $logDetails['task']['id'];
+        $this->hours = $logDetails['hours'];
+        $this->description = $logDetails['notes'];
+        Log::info($logDetails);
+
+    }
+    public function cancelEdit()
+    {
+        $this->hours = null;
+        $this->description = '';
+        $this->idToEdit = null;
+    }
+
 
 
 }
