@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-center items-center">
-    <div class="grid-cols-1 w-6/12 ml-20">
-        <div class="grid grid-cols-2 gap-2">
+    <div class="grid-cols-1 w-6/12 ml-10">
+        <div class="grid grid-cols-3">
         <a href="{{route('logs')}}" >
             &#8635; Refresh
         </a>
@@ -11,8 +11,15 @@
                 <h>Hide Details</h>
             @else
                 Show Details
-            @endif</button>
+            @endif
+        </button>
+            @if($showDetails)
+                <a href="{{route('auto-import')}}">
+                    Auto import
+                </a>
+            @endif
         </div>
+
     </div></div>
     @if(count($data['missingEntries']) === 0 && count($data['lesserHours']) === 0 && count($data['missingNotes']) === 0)
         <div class="flex justify-center items-center">

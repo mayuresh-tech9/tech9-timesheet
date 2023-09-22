@@ -21,13 +21,13 @@ class NativeAppServiceProvider
             ->width(700)
             ->height(400);
 
-//        Window::open()
-////            ->alwaysOnTop()
-//            ->position(100,100)
-//            ->rememberState()
-////            ->showDevTools(false)
-//            ->width(400)
-//            ->height(400);
+        Window::open()
+//            ->alwaysOnTop()
+            ->position(100,100)
+            ->rememberState()
+            ->showDevTools(false)
+            ->width(400)
+            ->height(400);
 
     }
 

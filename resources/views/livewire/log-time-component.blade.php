@@ -4,38 +4,34 @@
 <div class="flex justify-center items-center border-2 m-5 bg-gray-50">
     <form wire:submit.prevent="submitForm">
         <div class="flex justify-center items-center border-2 m-1.5">
-            <h1>Log Time: {{ $time }}</h1>
+            <h1>Date: {{ $time }}</h1>
         </div>
         <div>
             <div class="flex justify-center items-center border-2 m-1.5 p-1.5">
-                <label for="dropdown">Select project:</label>
                 <select wire:model="selectedItem" id="dropdown">
-                    <option value="">Select an option</option>
+                    <option value="">Select project</option>
                     @foreach ($projects as $key => $value)
                         <option value="{{ $key }}">{{ $key }}</option>
                     @endforeach
                 </select>
-                <button wire:click="getCommits" class="@if(!$selectedItem) bg-gray-400 @else bg-blue-400 @endif text-white rounded p-1.5" @if(!$selectedItem) disabled @endif>Get Commits</button>
+                <button wire:click="getCommits" class="@if(!$selectedItem) bg-gray-400 @else bg-blue-400 @endif text-white rounded p-1.5 ml-2" @if(!$selectedItem) disabled @endif>Get Commits</button>
             </div>
-            @if($selectedItem)
                 <div class="flex justify-center items-center border-2 m-1.5 p-1.5">
-                    <select wire:model="selectedDesc" id="dropdown">
-                        <option value="">Select an option</option>
+                    <select wire:model="selectedDesc" id="dropdown" @if(!$selectedItem) disabled @endif>
+                        <option value="">Select an commit</option>
                         @foreach ($output as $key => $value)
                             <option value="{{ substr($value, strpos($value, ' ') + 1) }}">{{ substr($value, strpos($value, ' ') + 1) }}</option>
                         @endforeach
                     </select>
-                    <button wire:click="appendString" class="@if(!$selectedDesc) bg-gray-400 @else bg-blue-400 @endif text-white rounded p-1.5" @if(!$selectedDesc) disabled @endif>Add</button>
+                    <button wire:click="appendString" class="@if(!$selectedDesc) bg-gray-400 @else bg-blue-400 @endif text-white rounded p-1.5 ml-2" @if(!$selectedDesc) disabled @endif>Add</button>
                 </div>
-            @endif
         </div>
         <div>
 
 
             <div class="flex justify-center items-center border-2">
-                <label for="projectList">Select Project:</label>
                 <select wire:model="selectedProjectId" id="projectList">
-                    <option value="">Select a project...</option>
+                    <option value="">Select Project...</option>
                     @foreach ($projectAssignments as $assignment)
                         <option value="{{ $assignment['project']['id'] }}">{{ $assignment['client']['name'] }} - {{ $assignment['project']['name'] }}</option>
                     @endforeach
@@ -43,9 +39,8 @@
             </div>
                 @if ($selectedProjectId)
                     <div class="flex justify-center items-center border-2">
-                        <label for="taskList">Select Task:</label>
                         <select wire:model="selectedTaskId" id="taskList">
-                            <option value="">Select a task...</option>
+                            <option value="">Select a Task</option>
                             @foreach ($projectAssignments as $assignment)
                                 @if ($assignment['project']['id'] == $selectedProjectId)
                                     @foreach ($assignment['task_assignments'] as $taskAssignment)
@@ -61,13 +56,15 @@
                     Set project as default
                 </label>
         </div>
-        <label for="time_entry">Enter Time:</label>
             <div class="flex justify-center items-center">
-                <textarea wire:model="description" id="time_entry" rows="5" cols="40" class="border-2 rounded"></textarea>
-                <input type="text" wire:model="hours" id="time_entry_hours" class="border-2 rounded p-4" />
+                <textarea wire:model="description" id="time_entry" rows="5" cols="40" class="border-2 rounded" placeholder="Description"></textarea>
+            </div>
+            <div class="flex justify-center items-center">
+                <input type="text" wire:model="hours" id="time_entry_hours" class="border-2 rounded p-2 w-11/12" placeholder="8:00"  />
             </div>
              <div class="flex justify-center items-center">
-                    <button type="submit" class="bg-blue-400 text-white rounded p-1.5 mt-2 @if($idToEdit) hidden @endif" @if($idToEdit) disabled  @endif>Submit</button>
+                    <button type="submit" class="bg-blue-400 text-white rounded p-1.5 mt-2 hidden" >Submit</button>
+                    <button wire:click="toggleSubmit" class="bg-blue-400 text-white rounded p-1.5 mt-2 @if($idToEdit) hidden @endif" @if($idToEdit) disabled  @endif>Submit</button>
             @if($idToEdit)
                 <button wire:click="setUpdated" class="bg-blue-400 text-white rounded p-1.5 mt-2">Update</button>
                 <button wire:click="cancelEdit" class="bg-gray-400 text-white rounded p-1.5 mt-2">Cancel</button>

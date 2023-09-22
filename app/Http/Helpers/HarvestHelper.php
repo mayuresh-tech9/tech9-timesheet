@@ -149,5 +149,33 @@ class HarvestHelper
         return array($url, $headers, $handle);
     }
 
+    public static function timeToMinutes($time) : int
+    {
+        Log::info($time);
+        if (trim($time) === '') {
+            return 0;
+        }
+        list($hours, $minutes) = explode(':', $time);
+        return ($hours * 60) + $minutes;
+    }
 
+    public static function minutesToTime($minutes) : string
+    {
+        $hours = floor($minutes / 60);
+        $minutes = $minutes % 60;
+        return sprintf("%02d:%02d", $hours, $minutes);
+    }
+    public static function hoursToMinutes($hours) {
+        // Convert hours to minutes
+        $totalMinutes = round($hours * 60);
+
+        // Calculate hours and minutes separately
+        $hoursPart = floor($totalMinutes / 60);
+        $minutesPart = $totalMinutes % 60;
+
+        // Format the result as "H:MM" (e.g., "1:20" for 1.33 hours)
+        $formattedTime = sprintf('%d:%02d', $hoursPart, $minutesPart);
+
+        return $formattedTime;
+    }
 }

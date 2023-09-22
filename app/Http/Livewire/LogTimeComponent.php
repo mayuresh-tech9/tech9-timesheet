@@ -28,6 +28,7 @@ class LogTimeComponent extends Component
     public $existingEntries;
     public $idToEdit = null;
     public $updated = false;
+    public $submitted = false;
     protected $rules = [
         'time' => 'required',
         'hours' => ['required', 'regex:/^(?:[0-9]|0[0-9]|1[0-9]|2[0-3])(?::[0-5][0-9])?$/'],
@@ -78,6 +79,9 @@ class LogTimeComponent extends Component
         $this->validate();
         Log::info($this->idToEdit);
         Log::info($this->updated === true);
+        if (!$this->submitted) {
+            return;
+        }
         if ($this->idToEdit) {
             if (!$this->updated) {
                 return;
@@ -133,6 +137,7 @@ class LogTimeComponent extends Component
         }
         $this->idToEdit = null;
         $this->updated = false;
+        $this->submitted = false;
 
         return redirect()->route('logs');
 
@@ -156,17 +161,33 @@ class LogTimeComponent extends Component
         exec("git log --all --no-merges --pretty=oneline --abbrev-commit --date=short --author=$githubHanlde --since='$formatted_date' --before='$next_day'", $this->output);
     }
 
+    /**
+     *
+     */
     public function appendString()
     {
-        $this->description .= trim($this->description) === '' ? $this->selectedDesc : PHP_EOL . $this->selectedDesc;
+        $desc = $this->selectedDesc;
+        $position = strpos($this->selectedDesc, '[time]');
+        if ($position !== false) {
+            $extractedPart = substr($this->selectedDesc, $position + strlen('[time]'));
+            $extractedPart = trim($extractedPart);
+            $this->hours = HarvestHelper::minutesToTime(HarvestHelper::timeToMinutes($extractedPart) + HarvestHelper::timeToMinutes($this->hours));
+            $desc = strstr($this->selectedDesc, "[time]", true);
+        }
+        $this->description .= trim($this->description) === '' ? $desc : PHP_EOL . $desc;
+    }
+    public function toggleSubmit()
+    {
+        $this->submitted = !$this->submitted;
     }
     public function editLog($id)
     {
         $this->idToEdit = $id;
         $logDetails = HarvestHelper::getTimeEntryDetails($id);
+        Log::info($logDetails);
         $this->selectedProjectId = $logDetails['project']['id'];
         $this->selectedTaskId = $logDetails['task']['id'];
-        $this->hours = $logDetails['hours'];
+        $this->hours = HarvestHelper::hoursToMinutes($logDetails['hours']);
         $this->description = $logDetails['notes'];
         Log::info($logDetails);
 

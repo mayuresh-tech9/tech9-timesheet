@@ -5,9 +5,9 @@
 /public/hot
 /public/storage
 /public/storage/api_credentials.json
+/dist
 /dist/*
 /storage/*.key
-/vendor
 .env
 .env.backup
 .env.production
@@ -20,3 +20,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/dist/
+/vendor/
+vendor/
+.idea/
