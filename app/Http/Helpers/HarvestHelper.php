@@ -9,10 +9,25 @@ use Illuminate\Support\Facades\Log;
 
 class HarvestHelper
 {
+    static function getCurrentUser ()
+    {
+        list($url, $headers, $handle) = self::init();
+        curl_setopt($handle, CURLOPT_URL, $url . "users/me");
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
+
+        $userResponse = curl_exec($handle);
+        return collect(json_decode($userResponse, true))->toArray();
+    }
     static function getLogs($specificDate=null)
     {
+        Log::info($specificDate);
         $currentDate = $specificDate ?? Carbon::now()->format('Ymd');
         $startOfMonth = $specificDate ?? Carbon::now()->startOfMonth()->format('Ymd');
+        Log::info($currentDate);
+        Log::info($startOfMonth);
+
         list($url, $headers, $handle) = self::init();
         curl_setopt($handle, CURLOPT_URL, $url . "reports/time/projects?from=$startOfMonth&to=$currentDate");
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
@@ -21,12 +36,13 @@ class HarvestHelper
 
         $response = curl_exec($handle);
         $projectIds = collect(json_decode($response, true)['results'])->pluck('client_id')->toArray();
+        $userId = self::getCurrentUser()['id'];
         $timeEntries = [];
         $projectIds = array_unique($projectIds);
         foreach ($projectIds as $projectId) {
-            $currentDate = Carbon::now()->format('Y-m-d');
-            $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
-            curl_setopt($handle, CURLOPT_URL, $url . "time_entries?user_id=3843559&client_id=$projectId&from=$startOfMonth&to=$currentDate");
+            $currentDate =  $specificDate ?? Carbon::now()->format('Y-m-d');
+            $startOfMonth =   $specificDate ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+            curl_setopt($handle, CURLOPT_URL, $url . "time_entries?user_id=$userId&client_id=$projectId&from=$startOfMonth&to=$currentDate");
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($handle, CURLOPT_USERAGENT, "PHP Harvest API Sample");
