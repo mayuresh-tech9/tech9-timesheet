@@ -13,18 +13,24 @@ use Native\Laravel\Facades\Notification;
 class AutoImport extends Component
 {
     public $dayOfMonth;
-    public $defaultTime;
     public $result;
     public $projects;
     public $selectedItem;
     public $description;
+    public $defaultDescription = '';
+    public $defaultTime = '0:00';
     public $hours = 0;
     public $selectedTaskId;
     public $selectedProjectId;
+    public $projectAssignments;
 
 
     public function mount()
     {
+        $data = SettingsHelper::getSettings();
+        $this->selectedProjectId = $data['default_project_id'] ?? '';
+        $this->selectedTaskId = $data['default_task_id'] ?? '';
+        $this->projectAssignments = HarvestHelper::getProjects();
         $this->getLocalProjects();
     }
 
@@ -78,14 +84,18 @@ class AutoImport extends Component
             foreach ($commits as $commit) {
                 $this->appendString($commit);
             }
+
             list($url, $headers, $handle) = HarvestHelper::init();
+            if ($this->description === '') {
+                $this->description = $this->defaultDescription;
+            } else {
+                $this->description .= PHP_EOL . $this->defaultDescription;
+            }
             $postData = array(
-                'hours' => $this->hours === "0:00" ? "8:00" : $this->hours,
+                'hours' => $this->hours === "0:00" ? $this->defaultTime : $this->hours,
                 'notes' => $this->description
             );
-            $data = SettingsHelper::getSettings();
-            $this->selectedProjectId = $data['default_project_id'] ?? '';
-            $this->selectedTaskId = $data['default_task_id'] ?? '';
+
             $postFields = http_build_query($postData);
             curl_setopt($handle, CURLOPT_URL, $url . "time_entries?project_id=$this->selectedProjectId&task_id=$this->selectedTaskId&spent_date=$date");
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);

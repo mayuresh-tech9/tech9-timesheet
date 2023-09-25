@@ -9,3 +9,7 @@
 
 ## Setup steps
 1. Clone the repository
+2. Install composer
+3. Install npm
+4. Run composer install
+5. Create file storage/app/api_credentials.json
