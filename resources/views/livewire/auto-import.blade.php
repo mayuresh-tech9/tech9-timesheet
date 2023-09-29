@@ -42,7 +42,7 @@
           <textarea wire:model="defaultDescription" id="time_entry" rows="5" cols="40" class="border-2 rounded" placeholder="Default Description"></textarea>
           <textarea wire:model="defaultTime" id="time_entry" rows="1" cols="40" class="border-2 rounded" placeholder="Default hours"></textarea>
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" class="bg-blue-400 text-white rounded p-1.5 mt-2">Submit</button>
     </form>
 
 

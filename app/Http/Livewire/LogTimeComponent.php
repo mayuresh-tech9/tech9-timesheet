@@ -72,7 +72,10 @@ class LogTimeComponent extends Component
     public function setUpdated()
     {
         Log::info("setting updated true");
+
         $this->updated = true;
+        $this->submitted = true;
+
     }
     public function submitForm()
     {
