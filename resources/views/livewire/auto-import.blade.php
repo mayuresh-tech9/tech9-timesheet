@@ -47,6 +47,3 @@
     </div>
   </form>
 </div>
-@if ($result)
-  <p>Selected Day of the Month: {{ $result }}</p>
-@endif

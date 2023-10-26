@@ -36,15 +36,6 @@ class AutoImport extends Component
 
     public function submit()
     {
-
-//        $this->validate([
-//            'dayOfMonth' => [
-//                'required',
-//                'regex:/^(\d{1,2}(?:-\d{1,2})?(?:,\d{1,2}(?:-\d{1,2})?)*)$/',
-//            ],
-//            'defaultTime' => 'sometimes|string',
-//        ]);
-
         // Use Carbon to create a date with the provided day of the month
         $days = explode(',', $this->dayOfMonth);
 
@@ -118,10 +109,7 @@ class AutoImport extends Component
                     ->show();
             }
         }
-
-
-        // Set the result property with the formatted dates
-        $this->result = $this->description . PHP_EOL . PHP_EOL . 'Total time: ' . $this->hours;
+        return redirect()->route('logs');
     }
     public function appendString($desc)
     {
@@ -160,15 +148,18 @@ class AutoImport extends Component
         $data = json_decode($jsonData, true);
 
         $githubHanlde = $data['github_handle'] ?? '';
-        $path = $this->projects[$this->selectedItem];
-        chdir($path);
-        $formatted_date = Carbon::parse($date)->startOfDay()->format('Y-m-d H:i:s');
-        $next_day = Carbon::parse($date)->endOfDay()->format('Y-m-d H:i:s');
-        exec("git log --all --no-merges --pretty=oneline --abbrev-commit --date=short --author=$githubHanlde --since='$formatted_date' --before='$next_day'", $output);
         $result = [];
-        foreach ($output as $res) {
-            preg_match('/^([a-zA-Z0-9]+) /', $res, $matches);
-            $result[$matches[1]] = substr($res, strpos($res, ' ') + 1);
+        if ($this->selectedItem) {
+            $path = $this->projects[$this->selectedItem];
+            chdir($path);
+            $formatted_date = Carbon::parse($date)->startOfDay()->format('Y-m-d H:i:s');
+            $next_day = Carbon::parse($date)->endOfDay()->format('Y-m-d H:i:s');
+            exec("git log --all --no-merges --pretty=oneline --abbrev-commit --date=short --author=$githubHanlde --since='$formatted_date' --before='$next_day'", $output);
+
+            foreach ($output as $res) {
+                preg_match('/^([a-zA-Z0-9]+) /', $res, $matches);
+                $result[$matches[1]] = substr($res, strpos($res, ' ') + 1);
+            }
         }
         return $result;
     }
