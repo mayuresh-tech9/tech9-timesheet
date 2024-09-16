@@ -1,5 +1,5 @@
 ## Project: 
-    Timesheet App
+    Timesheet app
 ## Basic purpose: 
     Track time spent on projects, identify missing entries and update them.
 ## Project includes:
